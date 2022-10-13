@@ -1,0 +1,15 @@
+[Unit]
+Description=PSION MC400 image conversion helper
+
+[Service]
+Restart=on-failure
+RestartSec=10
+ExecStart=/home/pi/mc400/mc400_watch_image.sh
+WorkingDirectory=/home/pi
+SyslogIdentifier=mc400
+User=pi
+Group=pi
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target

@@ -8,5 +8,5 @@ Some prerequisites:
   1. on the Pi - dosbox-x, rainbowstream, msmtp, imagemagick, rclone - all installed and configured. Psion DOS programs MCLINK.EXE and WSPCX.EXE
   2. on the MC400 - "The Link" is running
   3. physical connectivity - MC400 serial port connected to Raspberry Pi to /dev/ttyUSB0 with USB-serial adapter that supports DSR/DTR e.g. PL2303
-  
+  4. rclone is configured to sync to Google drive. Iamge conversion syncs all images and also uses bitly's API to shorten the Google drive links.
   

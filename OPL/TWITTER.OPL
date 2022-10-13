@@ -1,0 +1,193 @@
+REM
+REM Simple Tweet sending from the Psion MC400
+REM - needs appropriate handling of files written
+REM   to an attached device to actually send tweets!
+REM
+REM v1.0.01 19/09/2021 @zedstarr
+REM
+REM cxf@zedstarr.net
+REM
+
+PROC Tweeter:
+
+  LOCAL ret%,fName$(128),txt$(255),address%,version$(6)
+  LOCAL handle%,mode%,k%,len%
+
+  version$="1.0.01"
+  
+  REM Check link connected
+  ONERR borked::
+  k%=EXIST("REM::C:\MCLINK.EXE")
+  borked::
+  ONERR OFF
+  IF NOT k%
+    PRINT 
+    PRINT "  PSION MC400 Simple Twitter Client v"+version$+" (c) 2021 @zedstarr"
+    PRINT 
+    PRINT "  ERROR: Can't connect to PsiBridge"
+    PRINT "         Check serial connection."
+    GET
+    
+  ELSE
+  
+    fName$="REM::C:\TWEET\INBOX\TWEET.TXT"  
+    
+    SCREEN 80,12
+    
+    WHILE NOT ERR
+      PRINT 
+      PRINT "   PSION MC400 Simple Twitter Client v"+version$+" (c) 2021 @zedstarr"
+      PRINT "     (on a blank line - <ESC> to quit, L<Enter> to Bring data)"
+      PRINT
+      PRINT " Tweet:>",
+      TRAP EDIT txt$
+    
+      IF ERR=-114 
+        RETURN
+      ENDIF
+    
+      IF txt$="L"
+    	  txt$=bring$:
+    	  CLS
+    	ELSE
+    	  BREAK
+      ENDIF
+    ENDWH
+      
+    mode% = $0001 OR $0020 OR $0100
+  
+    ret%=IOOPEN(handle%,fName$,mode%)
+    IF ret%
+      Showerr:(ret%)
+      RETURN
+    ENDIF
+    
+    address%=ADDR(txt$)+1 : len%=len(txt$)
+    ret%=IOWRITE(handle%,address%,len%)
+    IF ret%
+      Showerr:(ret%)
+      RETURN
+    ENDIF
+
+    ret%=IOCLOSE(handle%)
+    IF ret%
+      Showerr:(ret%)
+      RETURN
+    ENDIF
+    
+  ENDIF
+  
+ENDP
+
+PROC Showerr:(val%)
+  PRINT "Error: ",val%,err$(val%)
+  GET
+ENDP
+
+
+rem The following code is based on "LPC.OPL"
+rem (Original code written by Colly Myers)
+rem (Translated into OPL by Tom Dolbilin)
+rem (adapted for the MC with help from David Wood at Psion)
+
+PROC Bring$:
+
+global srvPid%      rem PID of Link server
+global buf$(255)    rem Buffer to receive data
+global ioSem%       rem The I/O semaphore handle
+
+local wsrvPid%      rem PID of Window server
+local fmt&          rem Message buffer
+local pfmt%         rem Pointer to message buffer
+
+local name$(15),form%(3),n%,ret%,ret$(255)
+local w%(2)
+
+rem --- Get Shell's pid
+
+rem Note: on the MC, SYS$SHLL.IMG holds Link server data
+rem on the Series 3/3a SYS$WSRV.IMG holds Link Server data
+rem change name$ to "SYS$WSRV.*" for Series 3/3a
+
+name$="SYS$SHLL.*"
+wsrvPid%=call($188,addr(name$)+1)
+
+rem --- Get the handle of our I/O semaphore
+
+call($78b,0,2,0,(call($88) and $fff)+33,addr(ioSem%))
+
+rem --- Get the Link Server's pid
+
+pfmt%=addr(fmt&)
+srvPid%=call($683,wsrvPid%,4,0,addr(pfmt%)) rem MessSendReceiveWithWait
+
+if srvPid%<0
+	showerr:(srvPid%)
+	return ""
+elseif srvPid%=0
+	at 2,11
+	print "Nothing to bring"
+	pause 40
+	at 2,11
+	print "                "
+	return ""
+endif
+
+rem --- Get the name of the Link Server
+
+call($a88,srvPid%,0,0,0,addr(name$)+1)
+pokeb addr(name$),call($b9,0,0,0,0,addr(name$)+1)
+
+w%(1)=$2
+
+rem --- Request a rendering
+
+ret%=talk%:(w%(1),0)
+if ret%=0
+	rem --- Server prepared to render data
+	while 1
+		ret%=talk%:(addr(buf$)+1,255) : rem Get the server data
+		if ret%<0
+			if ret%=-36     rem End of file
+				ret%=0        rem Avoid an error print
+			endif
+			break
+		endif
+		rem --- Display the data received
+		pokeb addr(buf$),ret%
+		ret$=peek$(addr(buf$))
+	endwh
+endif
+
+if ret%<0
+	showerr:(ret%)
+endif
+
+return ret$
+
+ENDP
+
+PROC Talk%:(a%,b%)
+local arg1%,arg2%	        rem Message parameters - keep in order
+local stat%,count%,ret%
+arg1%=a%
+arg2%=b%
+call($0583,srvPid%,$21,0,addr(arg1%),addr(stat%)) rem MessSendReceiveAsynchronous
+while 1
+	iowait
+	if stat%<>-46 : rem The result has been returned
+		ret%=stat%
+		break
+	else
+		count%=count%+1 : rem Count up all other signals
+	endif
+endwh
+
+rem --- Put back spare signals if any
+while count%
+	iosignal
+	rem call($382,ioSem%,0,0,0,0) rem SemSignalOnce
+	count%=count%-1
+endwh
+return ret%
+ENDP

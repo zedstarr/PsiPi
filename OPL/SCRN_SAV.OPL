@@ -1,0 +1,55 @@
+REM
+REM Move any LOC::M:\SCREEN.PIC screen dumps
+REM to an attached computer for processing
+REM
+REM v0.0.01 21/09/2021 @zedstarr
+REM 
+
+PROC Main:
+  local l%
+  
+  SCREEN 70,12
+  
+  WHILE 1
+    PRINT DATIM$,"Waiting for LOC::M:\SCREEN.PIC..."
+    DO
+      REM check every 10s
+      PAUSE 200
+    UNTIL EXIST("LOC::M:\SCREEN.PIC")
+    PRINT DATIM$,"Found LOC::M:\SCREEN.PIC"
+    REM Wait until dumping is truly finished
+    PAUSE 100
+    REM If link not connected the re-check every minute
+    ONERR borked::
+    l%=EXIST("REM::C:\MCLINK.EXE")
+    borked::
+    ONERR OFF
+    IF l%
+      PRINT DATIM$,"Copying to REM::C:\IMAGE\INBOX\SCREEN.PIC"
+      TRAP COPY "LOC::M:\SCREEN.PIC","REM::C:\IMAGE\INBOX\SCREEN.PIC"
+      IF ERR
+        Showerr:(ERR)
+        GET
+        RETURN
+      ELSE
+        PRINT DATIM$,"Deleting LOC::M:\SCREEN.PIC"
+        TRAP DELETE "LOC::M:\SCREEN.PIC"
+        IF ERR
+          Showerr:(ERR)
+          GET
+          RETURN
+        ENDIF
+      ENDIF
+    ELSE
+      PRINT DATIM$,"Waiting for LINK..."
+      PRINT "       Error: ",ERR,ERR$(ERR)
+      PAUSE 1000
+    ENDIF
+    PAUSE 200
+  ENDWH
+ENDP
+
+PROC Showerr:(val%)
+  PRINT "Error: ",val%,err$(val%)
+  GET
+ENDP

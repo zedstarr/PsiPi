@@ -1,0 +1,376 @@
+
+M C L I N K   -   S U P P L E M E N T A R Y   I N F O R M A T I O N
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
+
+
+
+This file contains details of options and commands for MCLINK.EXE.
+See your 3 Link manual for full instructions on getting started.
+
+MCLINK requires DOS version 3.2 or above.
+
+
+Commands provided in MCLINK
+---------------------------
+
+When you start up the MCLINK program, the lower window contains a $
+prompt. At this prompt you can enter various commands. These commands
+cover:
+
+   1  file-handling
+   2  changing the communications settings
+   3  exiting the MCLINK program
+   4  displaying the version of MCLINK
+
+For all these commands:
+ 
+ - the command can be abbreviated, to a minimum of the first two
+   letters, e.g. DE for DELETE, RE for RENAME, CO for COPY.
+
+ - CTRL-C stops the command (though in multiple file operations, some
+   files may already have been copied, deleted etc. before the command
+   is stopped). 
+
+It is recommended that you read the `Files and disks' chapter in the
+Series 3 User Guide before using the commands described below.
+
+
+
+1  File-handling commands: DIR, COPY, RENAME, DELETE, MKDIR
+-----------------------------------------------------------
+Usually you would use the various file options on the Series 3; but for
+certain operations you might choose to use the file-handling commands
+within MCLINK on the PC instead. Note that in all these commands:
+
+ - if no directory is specified, the current directory is assumed.
+ - if no device is specified, the current device is assumed.
+ - if no filing system is specified, the PC is assumed.
+
+
+Full file names
+~~~~~~~~~~~~~~~
+In MCLINK the syntax of full file names on the PC or Series 3 is:
+
+      filing system::device:\directory\sub-directory\file.extension
+
+When specifying a directory or sub-directory in the file-handling
+commands, make sure to add a \ onto the end of the directory name.
+Otherwise the directory name will be taken as a filename. So:
+
+      COPY A:\*.* REM::\LETTERS is wrong - it would try to copy the
+      files in the root directory of A: to the file LETTERS.
+
+      COPY A:\*.* REM::\LETTERS\ is right - it would copy the files
+      on A: to the directory LETTERS.
+
+In MCLINK on the PC, `filing system' is
+      LOC:: for files on the PC (local)
+   or REM:: for files on the Series 3 (remote)
+
+On the Series 3 the situation is reversed, with LOC:: being the
+Series 3, and REM:: being the PC.
+
+If you do not specify a filing system in a file specification, LOC::
+is used.
+
+On the Series 3, A: and B: are the SSD drives, and M: is the internal
+disk. A device connected to the expansion port may or may not provide
+a C: drive.
+
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+DIR - lists files in the specified directory
+
+Syntax: DIR directory
+
+*  The directory may be on the remote or local filing system - e.g.
+   DIR A:\LETTERS\ looks in directory LETTERS on the disk in drive A:
+   of the PC, DIR REM::A:\NOTES\ looks in the NOTES directory on the
+   SSD in drive A: of the Series 3.
+
+*  Use wildcards to list only certain files - e.g.
+   DIR *.TXT to list just the .TXT files in the current directory.
+
+When you get a directory listing with the DIR command, the following
+file information is given:
+
+   file name and extension
+   date and time when the file was last modified
+   size of file in bytes
+
+and a combination of these indicators as appropriate:
+
+   Mod     file has been modified since last sent
+   RdO     read-only file
+   Sys     system file
+   Hid     hidden file
+
+Example: CLIENTS.DBF      14/01/90  09:54:23  544  Mod RdO
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+COPY - copies specified files to the specified device and directory
+
+Syntax: COPY filename1 filename2
+
+Optional flags:
+   -i   include sub-directories
+        If there are any files copied from subdirectories they are
+        placed in directories below the current directory to reflect
+        the source directory structure.
+
+   -m   modified files only
+
+   e.g. COPY REM::A:\*.* -i -m copies all modified files in all
+   directories of the SSD in drive A: on the Series 3 to the PC.
+
+Examples:
+
+   COPY REM::M:\*.TXT \BACKUP\ would copy all the .TXT files
+   from the internal disk of the Series 3 to the BACKUP directory
+   on the PC.
+
+   COPY \SMITH\*.DOC REM::A:\LETTERS\ would copy all the .DOC files
+   from the SMITH directory on the PC to directory LETTERS on
+   the SSD in drive A: of the Series 3.
+
+*  If you do not supply a complete destination name, the root 
+   directory and/or default disk on the Series 3 is assumed, and the
+   source filename is used as the destination filename.
+   E.g. COPY \HOME\SECURE.TXT REM::M: would copy SECURE.TXT to the
+   M:\ directory on the Series 3, giving the file the name SECURE.TXT.
+
+*  If you do not supply a complete source name, the current
+   device/directory is assumed - e.g. COPY *.TXT REM::M:\ copies files
+   from the current directory on the PC to the root directory of the Series 3's
+   internal disk.
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+RENAME - renames the specified file
+
+Syntax: RENAME filename1 filename2
+
+*  You can rename a file in any directory on any drive on the PC
+   or Series 3 - e.g.
+   RENAME DETAILS.DOC DETAILS2.DOC
+   RENAME REM::M:\CLIENTS.DBF REM::M:\BUSINESS.DBF
+
+*  You can rename more than one file at a time, e.g.
+   RENAME REM::M:\*.TXT REM::M:\*.DOC
+
+*  You cannot rename a file across directories or devices, so:
+   RENAME REM::M:\LETTER1.TXT REM::B:\LETTER2.TXT
+   would give an error. Instead, copy the file to the new name
+   and destination then delete the old file.
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+DELETE - deletes specified file
+
+Syntax: DELETE filename
+
+Optional flag:
+   -i   delete files of the same name in sub-directories
+   e.g. DEL *.TXT -i would delete all .TXT files in the current
+   directory and in any sub-directories of the current directory.
+
+*  You can delete files from any directory on the PC or Series 3.
+
+*  You can delete more than one file at a time by using wildcards.
+
+*  You cannot delete directories with this command.
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+MKDIR - makes a directory
+
+Syntax: MKDIR directory
+
+*  Makes a subdirectory of the current directory.
+
+*  You can make directories on any drive of the PC or Series 3.
+
+*  You can make more than one subdirectory at a time - e.g.
+   MKDIR \HOME\LETTERS makes the subdirectory \HOME\LETTERS and the
+   intermediate subdirectory \HOME (if it does not exist).
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+
+
+
+
+2  Changing the communications settings
+---------------------------------------
+
+The SET command in MCLINK allows you to:
+
+        use either of the PC's serial ports,
+        change the Baud rate at which your Series 3 and PC communicate
+
+Following the SET command you can specify a variety of options. For
+example:
+
+         SET -p1 -b9600       selects COM 1, 9600 baud
+         SET -p2              selects COM 2
+
+SET options:
+
+   Serial port: -p1 or -p2 selects COM 1 or 2
+
+   Baud rate: -b followed by a number sets the baud rate. You will
+   need to change the Baud rate on the Series 3 to match, by using
+   the `Remote link' option in the System screen.
+
+IMPORTANT:
+When MCLINK is run, it looks for a file MCLINK.TRM in the current
+directory which holds the communication options. For the Series 3, an
+MCLINK.TRM is provided, which sets 9600 Baud.
+
+If an MCLINK.TRM is not found, the default settings are used. The SET
+command creates a new MCLINK.TRM in the current directory to hold the
+new settings.
+
+Default settings
+~~~~~~~~~~~~~~~~
+To use the default settings, ensure that there is no MCLINK.TRM in
+the current directory - by renaming or deleting it, or changing to a
+different directory. The default settings are:
+
+    -p1 -b19200       (serial port 1, 19200 baud)
+
+To return to the default settings, type SET
+
+Examples of the SET command:
+
+   SET -b1200		            1200 baud
+                                    
+   SET -p1 -b2400		    port 1, 2400 Baud.
+
+
+
+3  Exiting the MCLINK program
+-----------------------------
+
+   Type EXIT to return to DOS.
+
+
+4  Display the version of MCLINK
+--------------------------------
+
+   Type VER to display the version number.
+
+
+Single floppy disk drive PCs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   If your PC has only one floppy disk drive (currently
+   referenced as `A:'), and you mistakenly enter DIR B: while 
+   in the MCLINK program, the program will be halted by DOS,
+   requesting you to insert a disk into B:.
+
+   To avoid this, use the DOS ASSIGN command before running the 
+   MCLINK program, like this:
+
+      ASSIGN B=A (Enter)
+
+   Then DIR B: will be read as DIR A: and the program will not 
+   be halted. See your DOS manual for further details of the 
+   ASSIGN command.
+
+
+Additional Features
+~~~~~~~~~~~~~~~~~~~
+
+The following enhancements have been made:
+
+    1  running programs on a Series 3
+    2  running multiple commands
+    3  initial command line processing
+
+1  Running programs on the Series 3
+-----------------------------------
+
+RUN - makes a program run on the Series 3.
+
+Syntax: RUN program name, program command line
+
+*  The program name is assumed to specify a valid executable for the
+   Series 3. The program may exist on either computer; in order to
+   force the Series 3 to run a copy of the program held on the PC,
+   you should prefix the program name with 'REM::'
+
+*  The program command line is as required by the program being
+   invoked.
+
+Examples of the RUN command:
+
+    RUN CLOCK.IMG will run a copy of CLOCK.IMG on the Series 3.
+    The program is assumed to exist in the root directory of the
+    default disk.
+
+    RUN REM::CLOCK.IMG will run a copy of CLOCK.IMG on the PC.
+    The program is assumed to exist in the default path on the PC.
+
+2  Running multiple commands
+----------------------------
+
+   MCLINK can read a text file containing multiple commands:
+
+*  Any line in the file containing a '!' is assumed to be a comment
+   line and is ignored.
+
+*  Any blank line is ignored.
+
+*  You may specify almost any MCLINK command, although some may be
+   meaningless in this environment - DIR, for example.
+
+*  The SET command should not be used.
+
+To invoke, type the '@' character immediately followed by the name of 
+the text file containing the commands.
+
+Example:
+
+   If the file 'SEND_ALL.TXT' contains the following lines:
+
+        ! Sends all text files to the Series 3 after
+        ! creating the correct directory, then exits
+
+        MKDIR REM::M:\NOTES\
+        COPY *.TXT REM::M:\NOTES\
+        COPY *.DOC REM::M:\NOTES\
+        EXIT
+
+   then entering '@SEND_ALL.TXT' at the '$' prompt will cause the
+   \NOTES\ directory to be created in the internal memory of the Series
+   3, all the .TXT and .DOC files in the current directory to be copied
+   to this \NOTES\, then MCLINK to exit.
+
+3  Initial command line processing
+----------------------------------
+
+   MCLINK now understands a command line entered when running MCLINK
+   from the DOS prompt. The command line may take the form of the 
+   parameters to the SET command, a file name assumed to be a 
+   configuration file, or the @ command to run a sequence of commands.
+
+Examples:
+ 
+   MCLINK -p2 -b9600 will run MCLINK using port 2 at 9600 baud. No 
+   .TRM file will be created, unlike the SET command, and any future
+   running of the MCLINK program will not use these parameters.
+   
+   MCLINK S3SETUP will run MCLINK forcing it to use the file
+   S3SETUP.TRM as the initial configuration file. This file would
+   typically have been created by a previous use of the SET command 
+   within MCLINK.
+
+   MCLINK @SEND_ALL.TXT will run MCLINK and cause the initial
+   commands to be read from the file SEND_ALL.TXT. MCLINK will
+   wait until a connection to the Series 3 has been established
+   before running any of the commands.
+
+(c) Copyright Psion PLC 1990   V2S Oct 91

@@ -4,7 +4,8 @@ REM - needs appropriate handling of files written
 REM   to an attached device to actually send email!
 REM
 REM v1.0.01 19/09/2021 @zedstarr
-REM
+REM v1.0.02 13/10/2022 @zedstarr
+REM 
 REM cxf@zedstarr.net
 REM
 
@@ -13,7 +14,7 @@ PROC Mail:
   LOCAL ret%,fName$(128),text$(255),body$(127),subj$(64),dest$(64),version$(6)
   LOCAL address%,handle%,mode%,k%,len%
 
-  version$="1.0.01"
+  version$="1.0.02"
   REM Check "The Link" is connected
   ONERR borked::
   k%=EXIST("REM::C:\MCLINK.EXE")
@@ -21,7 +22,7 @@ PROC Mail:
   ONERR OFF
   IF NOT k%
     PRINT 
-    PRINT "  PSION MC400 Simple Email Sender v"+version$+" (c) 2021 @zedstarr"
+    PRINT "  PSION MC400 Simple Email Sender v"+version$+" (c) 2021-2 @zedstarr"
     PRINT 
     PRINT "  ERROR: Can't connect to PsiBridge"
     PRINT "         Check serial connection."
@@ -35,7 +36,7 @@ PROC Mail:
     
     WHILE NOT ERR
       PRINT 
-      PRINT "   PSION MC400 Simple Email Sender v"+version$+" (c) 2021 @zedstarr"
+      PRINT "   PSION MC400 Simple Email Sender v"+version$+" (c) 2021-2 @zedstarr"
       PRINT "    (on a blank line - <ESC> to quit, L<Enter> to Bring data)"
       PRINT 
       PRINT " To:>",
@@ -66,7 +67,7 @@ PROC Mail:
     	  subj$=bring$:
     	  CLS
         PRINT 
-        PRINT "   PSION MC400 Simple Email Sender v"+version$+" (c) 2021 @zedstarr"
+        PRINT "   PSION MC400 Simple Email Sender v"+version$+" (c) 2021-2 @zedstarr"
         PRINT "    (on a blank line - <ESC> to quit, L<Enter> to Bring data)"
         PRINT 
         PRINT " To:>",dest$
@@ -88,7 +89,7 @@ PROC Mail:
     	  body$=bring$:
     	  CLS
         PRINT 
-        PRINT "   PSION MC400 Simple Email Sender v"+version$+" (c) 2021 @zedstarr"
+        PRINT "   PSION MC400 Simple Email Sender v"+version$+" (c) 2021-2 @zedstarr"
         PRINT "    (on a blank line - <ESC> to quit, L<Enter> to Bring data)"
         PRINT
         PRINT " To:>",dest$
@@ -107,7 +108,9 @@ PROC Mail:
       RETURN
     ENDIF
     
-    text$="To: "+dest$+"\nFrom: MC400 SIBO <mc400.sibo@gmail.com>\nSubject: "+subj$+"\n\n"+body$+"\n"
+    REM attempt to create RFC5322 compliant string for msmtp - EDIT YOUR OWN FROM NAME/ADDRESS BELOW
+    
+    text$="To: "+dest$+"\nFrom: Your Name <your@address.com>\nSubject: "+subj$+"\n\n"+body$+"\n"
     
     address%=ADDR(text$)+1 : len%=len(text$)
     ret%=IOWRITE(handle%,address%,len%)

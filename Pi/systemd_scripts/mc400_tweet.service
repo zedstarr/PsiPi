@@ -1,5 +1,5 @@
 [Unit]
-Description=PSION MC400 helper
+Description=PSION MC400 tweet helper
 
 [Service]
 Restart=on-failure

@@ -4,7 +4,7 @@
 # PsiPi
 Some Pi shell scripts and Psion OPL to link the Psion MC400 to the internet via a Raspberry Pi and enable simple email/tweet sending and image conversion.
 
-http://bit.ly/MC400cxf
+see http://bit.ly/MC400cxf for more details
 
 Some prerequisites: 
   1. on the Pi - dosbox-x, rainbowstream, msmtp, imagemagick, rclone - all installed and configured. Psion DOS programs MCLINK.EXE and WSPCX.EXE

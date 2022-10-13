@@ -1,4 +1,6 @@
 
+![MCMF in action on MC400](https://zedstarr.files.wordpress.com/2021/09/screen2021-09-21-152350.png)
+
 # PsiPi
 Some Pi shell scripts and Psion OPL to link the Psion MC400 to the internet via a Raspberry Pi and enable simple email/tweet sending and image conversion.
 

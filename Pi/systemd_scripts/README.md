@@ -1,5 +1,5 @@
 
-Optional systemd service files to be installed on the Pi that autostart the scripts that watch for the MC400 writing messages/images to the Pi.
+Optional systemd service unit files to be installed on the Pi that autostart the scripts that watch for the MC400 writing messages/images to the Pi.
 
 See https://www.thedigitalpictureframe.com/ultimate-guide-systemd-autostart-scripts-raspberry-pi/ for a tutorial on how/where to install these files.
 

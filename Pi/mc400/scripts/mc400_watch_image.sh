@@ -21,5 +21,6 @@
       sleep 1
       /usr/bin/rclone sync /home/pi/mc400/IMAGE/OUTBOX/ gdrive:mc400/IMAGE/OUTBOX/
       /home/pi/mc400/scripts/short.sh `/usr/bin/rclone link gdrive:mc400/IMAGE/OUTBOX/${nameroot}.PNG` > /home/pi/mc400/IMAGE/OUTBOX/${nameroot}.TXT
+      cat /home/pi/mc400/IMAGE/OUTBOX/${nameroot}.TXT > /home/pi/mc400/IMAGE/OUTBOX/latest.txt
     fi
   done

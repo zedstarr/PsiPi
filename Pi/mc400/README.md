@@ -5,5 +5,5 @@ The shell scripts in the scripts folder mc400_watch_email/tweet/image.sh detect 
 
 After processing time+date-tagged copies are placed in EMAIL/OUTBOX, TWEET/OUTBOX or IMAGE/OUTBOX.
 
-Images are synced to google drive after conversion. The script 'short.sh' uses bitly's API (you'll need to request your own access token) to shorten the google drive link to the converted file.
+Images are synced to google drive after conversion. The script 'short.sh' uses bitly's API (you'll need to request your own access token) to shorten the google drive link to the converted file. The most recently shortened URL is always in IMAGE/OUTBOX/latest.txt
 
